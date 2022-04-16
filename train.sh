@@ -1,3 +1,11 @@
+#!/bin/bash
+#SBATCH -p tesla
+#SBATCH -t 0-02:00:00
+#SBATCH --gres gpu:1
+#SBATCH -c 8
+#SBATCH --mem-per-cpu=16000
+#SBATCH -o ./output-%A.out
+
 python scripts/train.py \
     --dataset_type=ffhq_encode \
     --exp_dir=./exps/encoder \
