@@ -15,7 +15,7 @@ python scripts/train.py \
     --test_workers=8 \
     --val_interval=2500 \
     --save_interval=5000 \
-    --encoder_type=GradualStyleEncoder \
+    --encoder_type=GradualStyleEncoderMixing \
     --start_from_latent_avg \
     --lpips_lambda=0.8 \
     --l2_lambda=1 \
