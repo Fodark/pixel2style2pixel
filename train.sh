@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH -p tesla
-#SBATCH -t 0-02:00:00
+#SBATCH -t 1-00:00:00
 #SBATCH --gres gpu:1
 #SBATCH -c 8
 #SBATCH --mem-per-cpu=16000
@@ -19,4 +19,5 @@ python scripts/train.py \
     --start_from_latent_avg \
     --lpips_lambda=0.8 \
     --l2_lambda=1 \
-    --id_lambda=0.1
+    --id_lambda=0.1 \
+    --use_wandb
