@@ -147,7 +147,7 @@ class bottleneck_IR_SE(Module):
 
 class bottleneck_stylemixing(Module):
     def __init__(self, in_channel, depth, stride):
-        super(bottleneck_IR_SE, self).__init__()
+        super(bottleneck_stylemixing, self).__init__()
         if in_channel == depth:
             self.shortcut_layer = MaxPool2d(1, stride)
         else:
