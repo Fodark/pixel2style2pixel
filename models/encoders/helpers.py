@@ -155,7 +155,7 @@ class bottleneck_stylemixing(Module):
                 Conv2d(in_channel, depth, (1, 1), stride, bias=False),
                 BatchNorm2d(depth),
             )
-        self.res_layer = nn.ModuleList(
+        self.res_layers = nn.ModuleList(
             [
                 BatchNorm2d(in_channel),
                 # Conv2d(in_channel, depth, (3, 3), (1, 1), 1, bias=False),
@@ -170,7 +170,7 @@ class bottleneck_stylemixing(Module):
 
     def forward(self, x, style):
         shortcut = self.shortcut_layer(x)
-        for idx, layer in enumerate(self.res_layer):
+        for idx, layer in enumerate(self.res_layers):
             if idx == 1 or idx == 3:
                 x = layer(x, style)
             else:
