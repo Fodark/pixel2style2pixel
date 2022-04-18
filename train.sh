@@ -6,7 +6,7 @@
 #SBATCH --mem-per-cpu=16000
 #SBATCH -o ./output-%A.out
 
-python scripts/train.py \
+python3 scripts/train.py \
     --dataset_type=ffhq_encode \
     --exp_dir=./exps/encoder \
     --workers=8 \
