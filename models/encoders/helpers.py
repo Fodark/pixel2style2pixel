@@ -162,7 +162,7 @@ class bottleneck_stylemixing(Module):
                 ModulatedConv2d(in_channel, depth, 3, 512),
                 PReLU(depth),
                 # Conv2d(depth, depth, (3, 3), stride, 1, bias=False),
-                ModulatedConv2d(depth, depth, 3, 512),
+                ModulatedConv2d(depth, depth, 3, 512, downsample=(stride > 1)),
                 BatchNorm2d(depth),
                 SEModule(depth, 16),
             ]
