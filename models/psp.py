@@ -40,6 +40,8 @@ class pSp(nn.Module):
     def set_encoder(self):
         if self.opts.encoder_type == "GradualStyleEncoder":
             encoder = psp_encoders.GradualStyleEncoder(50, "ir_se", self.opts)
+        elif self.opts.encoder_type == "GradualStyleEncoderMixing":
+            encoder = psp_encoders.GradualStyleEncoder(50, "stylemixing", self.opts)
         elif self.opts.encoder_type == "BackboneEncoderUsingLastLayerIntoW":
             encoder = psp_encoders.BackboneEncoderUsingLastLayerIntoW(
                 50, "ir_se", self.opts
@@ -79,6 +81,7 @@ class pSp(nn.Module):
     def forward(
         self,
         x,
+        style=None,
         resize=True,
         latent_mask=None,
         input_code=False,
@@ -90,7 +93,7 @@ class pSp(nn.Module):
         if input_code:
             codes = x
         else:
-            codes = self.encoder(x)
+            codes = self.encoder(x, style)
             # normalize with respect to the center of an average face
             if self.opts.start_from_latent_avg:
                 if self.opts.learn_in_w:
