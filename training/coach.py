@@ -97,11 +97,16 @@ class Coach:
         while self.global_step < self.opts.max_steps:
             for batch_idx, batch in enumerate(self.train_dataloader):
                 self.optimizer.zero_grad()
-                x, y = batch
-                x, y = x.to(self.device).float(), y.to(self.device).float()
+                x, y, same = batch
+                x, y, same = (
+                    x.to(self.device).float(),
+                    y.to(self.device).float(),
+                    same.to(self.device),
+                )
+                same = same.flatten()
                 style = self.id_loss.extract_feats(x)
                 y_hat, latent = self.net.forward(y, style=style, return_latents=True)
-                loss, loss_dict, id_logs = self.calc_loss(x, y, y_hat, latent)
+                loss, loss_dict, id_logs = self.calc_loss(x, y, y_hat, latent, same)
                 loss.backward()
                 self.optimizer.step()
 
@@ -161,13 +166,18 @@ class Coach:
         self.net.eval()
         agg_loss_dict = []
         for batch_idx, batch in enumerate(self.test_dataloader):
-            x, y = batch
+            x, y, same = batch
 
             with torch.no_grad():
-                x, y = x.to(self.device).float(), y.to(self.device).float()
+                x, y, same = (
+                    x.to(self.device).float(),
+                    y.to(self.device).float(),
+                    same.to(self.device),
+                )
+                same = same.flatten()
                 style = self.id_loss.extract_feats(x)
                 y_hat, latent = self.net.forward(y, style=style, return_latents=True)
-                loss, cur_loss_dict, id_logs = self.calc_loss(x, y, y_hat, latent)
+                loss, cur_loss_dict, id_logs = self.calc_loss(x, y, y_hat, latent, same)
             agg_loss_dict.append(cur_loss_dict)
 
             # Logging related
@@ -256,7 +266,7 @@ class Coach:
         print(f"Number of test samples: {len(test_dataset)}")
         return train_dataset, test_dataset
 
-    def calc_loss(self, x, y, y_hat, latent):
+    def calc_loss(self, x, y, y_hat, latent, same=None):
         loss_dict = {}
         loss = 0.0
         id_logs = None
@@ -266,22 +276,30 @@ class Coach:
             loss_dict["id_improve"] = float(sim_improvement)
             loss = loss_id * self.opts.id_lambda
         if self.opts.l2_lambda > 0:
-            loss_l2 = F.mse_loss(y_hat, y)
+            _y_hat = y_hat[same] if same is not None else y_hat
+            _y = y[same] if same is not None else y
+            loss_l2 = F.mse_loss(_y_hat, _y)
             loss_dict["loss_l2"] = float(loss_l2)
             loss += loss_l2 * self.opts.l2_lambda
         if self.opts.lpips_lambda > 0:
-            loss_lpips = self.lpips_loss(y_hat, y)
+            _y_hat = y_hat[same] if same is not None else y_hat
+            _y = y[same] if same is not None else y
+            loss_lpips = self.lpips_loss(_y_hat, _y)
             loss_dict["loss_lpips"] = float(loss_lpips)
             loss += loss_lpips * self.opts.lpips_lambda
         if self.opts.lpips_lambda_crop > 0:
+            _y_hat = y_hat[same] if same is not None else y_hat
+            _y = y[same] if same is not None else y
             loss_lpips_crop = self.lpips_loss(
-                y_hat[:, :, 35:223, 32:220], y[:, :, 35:223, 32:220]
+                _y_hat[:, :, 35:223, 32:220], _y[:, :, 35:223, 32:220]
             )
             loss_dict["loss_lpips_crop"] = float(loss_lpips_crop)
             loss += loss_lpips_crop * self.opts.lpips_lambda_crop
         if self.opts.l2_lambda_crop > 0:
+            _y_hat = y_hat[same] if same is not None else y_hat
+            _y = y[same] if same is not None else y
             loss_l2_crop = F.mse_loss(
-                y_hat[:, :, 35:223, 32:220], y[:, :, 35:223, 32:220]
+                _y_hat[:, :, 35:223, 32:220], _y[:, :, 35:223, 32:220]
             )
             loss_dict["loss_l2_crop"] = float(loss_l2_crop)
             loss += loss_l2_crop * self.opts.l2_lambda_crop
