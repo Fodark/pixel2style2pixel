@@ -36,7 +36,7 @@ class ImagesDataset(Dataset):
         else:
             from_im = to_im
 
-        if index % self.opt.same_every_k == 0:
+        if index % 4 == 0:
             to_im = from_im.clone()
             same = torch.tensor(True)
         else:
