@@ -13,7 +13,7 @@ class WBLogger:
             project="pixel2style2pixel",
             config=vars(opts),
             name=wandb_run_name,
-            settings=wandb.Settings(start_method="fork"),
+            settings=wandb.Settings(start_method="thread"),
         )
 
     @staticmethod
