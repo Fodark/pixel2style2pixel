@@ -34,7 +34,7 @@ class pSp(nn.Module):
         # Load weights if needed
         self.load_weights()
 
-        wandb.watch(self.encoder, log="all", log_freq=200)
+        # wandb.watch(self.encoder, log="all", log_freq=200)
         # wandb.watch(self.decoder, log="all", log_freq=200)
 
     def set_encoder(self):
@@ -114,7 +114,7 @@ class pSp(nn.Module):
                     codes[:, i] = 0
 
         input_is_latent = not input_code
-        images, result_latent = self.decoder(
+        images, result_latent, features = self.decoder(
             [codes],
             input_is_latent=input_is_latent,
             randomize_noise=randomize_noise,
@@ -124,10 +124,12 @@ class pSp(nn.Module):
         if resize:
             images = self.face_pool(images)
 
-        if return_latents:
-            return images, result_latent
-        else:
-            return images
+        return images, result_latent, features
+
+        # if return_latents:
+        #     return images, result_latent
+        # else:
+        #     return images
 
     def set_opts(self, opts):
         self.opts = opts

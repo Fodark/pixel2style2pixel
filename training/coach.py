@@ -16,6 +16,7 @@ from configs import data_configs
 from datasets.images_dataset import ImagesDataset
 from criteria.lpips.lpips import LPIPS
 from models.psp import pSp
+from models.mask import Mask
 from training.ranger import Ranger
 
 
@@ -37,6 +38,7 @@ class Coach:
 
         # Initialize network
         self.net = pSp(self.opts).to(self.device)
+        self.mask = Mask().to(self.device)
 
         # Estimate latent_avg via dense sampling if latent_avg is not available
         if self.net.latent_avg is None:
@@ -105,7 +107,10 @@ class Coach:
                 )
                 same = same.flatten()
                 style = self.id_loss.extract_feats(x)
-                y_hat, latent = self.net.forward(y, style=style, return_latents=True)
+                y_hat, latent, features = self.net.forward(
+                    y, style=style, return_latents=True
+                )
+                y_hat, mask = self.mask(y_hat, features, y)
                 loss, loss_dict, id_logs = self.calc_loss(x, y, y_hat, latent, same)
                 loss.backward()
                 self.optimizer.step()
@@ -176,7 +181,10 @@ class Coach:
                 )
                 same = same.flatten()
                 style = self.id_loss.extract_feats(x)
-                y_hat, latent = self.net.forward(y, style=style, return_latents=True)
+                y_hat, latent, features = self.net.forward(
+                    y, style=style, return_latents=True
+                )
+                y_hat, mask = self.mask(y_hat, features, y)
                 loss, cur_loss_dict, id_logs = self.calc_loss(x, y, y_hat, latent, same)
             agg_loss_dict.append(cur_loss_dict)
 
