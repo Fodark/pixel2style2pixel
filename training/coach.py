@@ -279,12 +279,16 @@ class Coach:
             _y_hat = y_hat[same] if same is not None else y_hat
             _y = y[same] if same is not None else y
             loss_l2 = F.mse_loss(_y_hat, _y)
+            loss_l2 = loss_l2 if not torch.isnan(loss_l2) else torch.tensor(0.0)
             loss_dict["loss_l2"] = float(loss_l2)
             loss += loss_l2 * self.opts.l2_lambda
         if self.opts.lpips_lambda > 0:
             _y_hat = y_hat[same] if same is not None else y_hat
             _y = y[same] if same is not None else y
             loss_lpips = self.lpips_loss(_y_hat, _y)
+            loss_lpips = (
+                loss_lpips if not torch.isnan(loss_lpips) else torch.tensor(0.0)
+            )
             loss_dict["loss_lpips"] = float(loss_lpips)
             loss += loss_lpips * self.opts.lpips_lambda
         if self.opts.lpips_lambda_crop > 0:
@@ -293,6 +297,11 @@ class Coach:
             loss_lpips_crop = self.lpips_loss(
                 _y_hat[:, :, 35:223, 32:220], _y[:, :, 35:223, 32:220]
             )
+            loss_lpips_crop = (
+                loss_lpips_crop
+                if not torch.isnan(loss_lpips_crop)
+                else torch.tensor(0.0)
+            )
             loss_dict["loss_lpips_crop"] = float(loss_lpips_crop)
             loss += loss_lpips_crop * self.opts.lpips_lambda_crop
         if self.opts.l2_lambda_crop > 0:
@@ -300,6 +309,9 @@ class Coach:
             _y = y[same] if same is not None else y
             loss_l2_crop = F.mse_loss(
                 _y_hat[:, :, 35:223, 32:220], _y[:, :, 35:223, 32:220]
+            )
+            loss_l2_crop = (
+                loss_l2_crop if not torch.isnan(loss_l2_crop) else torch.tensor(0.0)
             )
             loss_dict["loss_l2_crop"] = float(loss_l2_crop)
             loss += loss_l2_crop * self.opts.l2_lambda_crop
