@@ -7,10 +7,14 @@ from utils import common
 
 
 class WBLogger:
-
     def __init__(self, opts):
         wandb_run_name = os.path.basename(opts.exp_dir)
-        wandb.init(project="pixel2style2pixel", config=vars(opts), name=wandb_run_name)
+        wandb.init(
+            project="pixel2style2pixel",
+            config=vars(opts),
+            name=wandb_run_name,
+            settings=wandb.Settings(start_method="fork"),
+        )
 
     @staticmethod
     def log_best_model():
@@ -18,7 +22,7 @@ class WBLogger:
 
     @staticmethod
     def log(prefix, metrics_dict, global_step):
-        log_dict = {f'{prefix}_{key}': value for key, value in metrics_dict.items()}
+        log_dict = {f"{prefix}_{key}": value for key, value in metrics_dict.items()}
         log_dict["global_step"] = global_step
         wandb.log(log_dict)
 
