@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from resblock import LazyBottleneck, lazyconv1x1
+from models.resblock import LazyBottleneck, lazyconv1x1
 
 
 class Mask(nn.Module):
