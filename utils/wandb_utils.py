@@ -33,15 +33,16 @@ class WBLogger:
         wandb.log({f"{dataset_name} Data Samples": data})
 
     @staticmethod
-    def log_images_to_wandb(x, y, y_hat, id_logs, prefix, step, opts):
+    def log_images_to_wandb(x, y, y_hat, mask, id_logs, prefix, step, opts):
         im_data = []
-        column_names = ["Source", "Target", "Output"]
+        column_names = ["Source", "Target", "Mask", "Output"]
         if id_logs is not None:
             column_names.append("ID Diff Output to Target")
         for i in range(len(x)):
             cur_im_data = [
                 wandb.Image(common.log_input_image(x[i], opts)),
                 wandb.Image(common.tensor2im(y[i])),
+                wandb.Image(common.mask2im(mask[i])),
                 wandb.Image(common.tensor2im(y_hat[i])),
             ]
             if id_logs is not None:
