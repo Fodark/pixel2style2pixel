@@ -44,7 +44,7 @@ class LazyBottleneck(nn.Module):
         dilation=1,
         norm_layer=None,
     ):
-        super(Bottleneck, self).__init__()
+        super(LazyBottleneck, self).__init__()
         if norm_layer is None:
             norm_layer = nn.BatchNorm2d
         width = int(planes * (base_width / 64.0)) * groups
