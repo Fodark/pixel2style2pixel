@@ -29,4 +29,15 @@ class Mask(nn.Module):
         masks = self.conv_out(masks)
         masks = self.sigmoid(masks)
 
-        return masks * y_hat + (1 - masks) * y, masks
+        fixed_from_generated = 0.5  # TODO: design a scheduler for this
+        rest = 1 - fixed_from_generated
+
+        fixed_part = (
+            torch.empty_like(masks).fill_(fixed_from_generated).requires_grad_(True)
+        )
+        rest_mask = torch.empty_like(masks).fill_(rest).requires_grad_(True)
+
+        fixed = fixed_part * y_hat
+        rest = (rest_mask * masks) * y_hat + (rest_mask * (1 - y_hat)) * y
+
+        return fixed + rest, masks
