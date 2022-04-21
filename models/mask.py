@@ -8,7 +8,12 @@ class Mask(nn.Module):
     def __init__(self):
         super(Mask, self).__init__()
         self.bottleneck = nn.ModuleList(
-            [LazyBottleneck(32, downsample=lazyconv1x1(32)) for _ in range(5)]
+            [
+                LazyBottleneck(
+                    32, downsample=lazyconv1x1(32), norm_layer=nn.InstanceNorm2d
+                )
+                for _ in range(5)
+            ]
         )
         self.conv_out = nn.Conv2d(5 * 32, 1, 1, 1)
         self.sigmoid = nn.Sigmoid()
