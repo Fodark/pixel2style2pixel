@@ -16,6 +16,7 @@ class Mask(nn.Module):
             ]
         )
         self.conv_out = nn.Conv2d(5 * 32, 1, 1, 1)
+        self.in_out = nn.InstanceNorm2d(1)
         self.sigmoid = nn.Sigmoid()
 
     def forward(self, y_hat, features, y):
@@ -27,6 +28,7 @@ class Mask(nn.Module):
 
         masks = torch.cat(masks, dim=1)
         masks = self.conv_out(masks)
+        masks = self.in_out(masks)
         masks = self.sigmoid(masks)
 
         fixed_from_generated = 0.5  # TODO: design a scheduler for this
